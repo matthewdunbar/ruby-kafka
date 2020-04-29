@@ -119,7 +119,7 @@ Please see the [documentation site](http://www.rubydoc.info/gems/ruby-kafka) for
 A client must be initialized with at least one Kafka broker, from which the entire Kafka cluster will be discovered. Each client keeps a separate pool of broker connections. Don't use the same client from more than one thread.
 
 ```ruby
-require "kafka"
+require "kafka-legacy"
 
 # The first argument is a list of "seed brokers" that will be queried for the full
 # cluster topology. At least one of these *must* be available. `client_id` is
@@ -430,7 +430,7 @@ In this example, a producer is configured in a Rails initializer:
 
 ```ruby
 # config/initializers/kafka_producer.rb
-require "kafka"
+require "kafka-legacy"
 
 # Configure the Kafka client with the broker hosts and the Rails
 # logger.
@@ -472,7 +472,7 @@ end
 Consuming messages from a Kafka topic with ruby-kafka is simple:
 
 ```ruby
-require "kafka"
+require "kafka-legacy"
 
 kafka = Kafka.new(["kafka1:9092", "kafka2:9092"])
 
@@ -495,7 +495,7 @@ The Consumer API solves all of the above issues, and more. It uses the Consumer 
 Using the API is simple:
 
 ```ruby
-require "kafka"
+require "kafka-legacy"
 
 kafka = Kafka.new(["kafka1:9092", "kafka2:9092"])
 
@@ -710,7 +710,7 @@ Most operations are instrumented using [Active Support Notifications](http://api
 
 ```ruby
 require "active_support/notifications"
-require "kafka"
+require "kafka-legacy"
 ```
 
 The notifications are namespaced based on their origin, with separate namespaces for the producer and the consumer.
@@ -749,7 +749,7 @@ All notifications have `group_id` in the payload, referring to the Kafka consume
   * `key` is the message key.
   * `topic` is the topic that the message was consumed from.
   * `partition` is the topic partition that the message was consumed from.
-  * `offset` is the message's offset within the topic partition. 
+  * `offset` is the message's offset within the topic partition.
   * `offset_lag` is the number of messages within the topic partition that have not yet been consumed.
 
 * `start_process_message.consumer.kafka` is sent before `process_message.consumer.kafka`, and contains the same payload. It is delivered _before_ the message is processed, rather than _after_.
@@ -758,7 +758,7 @@ All notifications have `group_id` in the payload, referring to the Kafka consume
   * `message_count` is the number of messages in the batch.
   * `topic` is the topic that the message batch was consumed from.
   * `partition` is the topic partition that the message batch was consumed from.
-  * `highwater_mark_offset` is the message batch's highest offset within the topic partition. 
+  * `highwater_mark_offset` is the message batch's highest offset within the topic partition.
   * `offset_lag` is the number of messages within the topic partition that have not yet been consumed.
 
 * `start_process_batch.consumer.kafka` is sent before `process_batch.consumer.kafka`, and contains the same payload. It is delivered _before_ the batch is processed, rather than _after_.
@@ -767,12 +767,12 @@ All notifications have `group_id` in the payload, referring to the Kafka consume
   * `group_id` is the consumer group id.
 
 * `sync_group.consumer.kafka` is sent whenever a consumer is assigned topic partitions within a consumer group. It includes the following payload:
-  * `group_id` is the consumer group id.  
-  
+  * `group_id` is the consumer group id.
+
 * `leave_group.consumer.kafka` is sent whenever a consumer leaves a consumer group. It includes the following payload:
   * `group_id` is the consumer group id.
- 
-  
+
+
 #### Connection Notifications
 
 * `request.connection.kafka` is sent whenever a network request is sent to a Kafka broker. It includes the following payload:
@@ -821,7 +821,7 @@ We recommend monitoring the following:
 The Statsd reporter is automatically enabled when the `kafka/statsd` library is required. You can optionally change the configuration.
 
 ```ruby
-require "kafka/statsd"
+require "kafka-legacy/statsd"
 
 # Default is "ruby_kafka".
 Kafka::Statsd.namespace = "custom-namespace"
@@ -840,7 +840,7 @@ The Datadog reporter is automatically enabled when the `kafka/datadog` library i
 
 ```ruby
 # This enables the reporter:
-require "kafka/datadog"
+require "kafka-legacy/datadog"
 
 # Default is "ruby_kafka".
 Kafka::Datadog.namespace = "custom-namespace"
@@ -899,7 +899,7 @@ can use:
 kafka = Kafka.new(["kafka1:9092"], ssl_ca_certs_from_system: true)
 ```
 
-This configures the store to look up CA certificates from the system default certificate store on an as needed basis. The location of the store can usually be determined by: 
+This configures the store to look up CA certificates from the system default certificate store on an as needed basis. The location of the store can usually be determined by:
 `OpenSSL::X509::DEFAULT_CERT_FILE`
 
 ##### Client Authentication
@@ -956,7 +956,7 @@ kafka = Kafka.new(
 **NOTE**: It is __highly__ recommended that you use SSL for encryption when using SASL_PLAIN
 
 ##### SCRAM
-Since 0.11 kafka supports [SCRAM](https://kafka.apache.org/documentation.html#security_sasl_scram). 
+Since 0.11 kafka supports [SCRAM](https://kafka.apache.org/documentation.html#security_sasl_scram).
 
 ```ruby
 kafka = Kafka.new(

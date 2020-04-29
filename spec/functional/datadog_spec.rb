@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "kafka/datadog"
+require "kafka-legacy/datadog"
 require "socket"
 require "fake_datadog_agent"
 

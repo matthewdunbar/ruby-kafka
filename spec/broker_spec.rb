@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "kafka/protocol/message"
+require "kafka-legacy/protocol/message"
 
 describe Kafka::Broker do
   let(:logger) { LOGGER }

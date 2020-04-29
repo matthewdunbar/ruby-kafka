@@ -2,7 +2,7 @@
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 
-require "kafka"
+require "kafka-legacy"
 
 logger = Logger.new(STDOUT)
 brokers = ENV.fetch("KAFKA_BROKERS", "localhost:9092").split(",")

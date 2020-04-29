@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "kafka/datadog"
+require "kafka-legacy/datadog"
 require "fake_datadog_agent"
 
 describe Kafka::Datadog do

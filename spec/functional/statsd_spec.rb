@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "kafka/statsd"
+require "kafka-legacy/statsd"
 require "socket"
 require "fake_statsd_agent"
 

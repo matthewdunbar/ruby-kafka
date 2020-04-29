@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "kafka"
+require "kafka-legacy"
 
 ready "message serialization" do
   before do

@@ -2,7 +2,7 @@
 
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "active_support/notifications"
-require "kafka"
+require "kafka-legacy"
 require "dotenv"
 require "logger"
 require "rspec-benchmark"

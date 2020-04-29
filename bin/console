@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
-require "kafka"
+require "kafka-legacy"
 
 require "pry"
 Pry.start
