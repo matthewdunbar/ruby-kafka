@@ -144,10 +144,10 @@ module KafkaLegacy
       end
 
       @queue << [:batches, batches]
-    rescue Kafka::NoPartitionsToFetchFrom
+    rescue KafkaLegacy::NoPartitionsToFetchFrom
       @logger.warn "No partitions to fetch from, sleeping for 1s"
       sleep 1
-    rescue Kafka::Error => e
+    rescue KafkaLegacy::Error => e
       @queue << [:exception, e]
     end
 

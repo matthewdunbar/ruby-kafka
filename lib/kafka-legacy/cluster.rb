@@ -16,7 +16,7 @@ module KafkaLegacy
     # The cluster will try to fetch cluster metadata from one of the brokers.
     #
     # @param seed_brokers [Array<URI>]
-    # @param broker_pool [Kafka::BrokerPool]
+    # @param broker_pool [KafkaLegacy::BrokerPool]
     # @param logger [Logger]
     def initialize(seed_brokers:, broker_pool:, logger:)
       if seed_brokers.empty?
@@ -128,7 +128,7 @@ module KafkaLegacy
           # becomes the coordinator before we have a chance to refresh_metadata.
           coordinator = begin
             connect_to_broker(coordinator_id)
-          rescue Kafka::NoSuchBroker
+          rescue KafkaLegacy::NoSuchBroker
             @logger.debug "Broker #{coordinator_id} missing from broker cache, refreshing"
             refresh_metadata!
             connect_to_broker(coordinator_id)
@@ -146,14 +146,14 @@ module KafkaLegacy
         end
       end
 
-      raise Kafka::Error, "Failed to find group coordinator"
+      raise KafkaLegacy::Error, "Failed to find group coordinator"
     end
 
     def partitions_for(topic)
       add_target_topics([topic])
       refresh_metadata_if_necessary!
       cluster_info.partitions_for(topic)
-    rescue Kafka::ProtocolError
+    rescue KafkaLegacy::ProtocolError
       mark_as_stale!
       raise
     end
@@ -184,12 +184,12 @@ module KafkaLegacy
         partitions_for(name).each do |info|
           Protocol.handle_error(info.partition_error_code)
         end
-      rescue Kafka::LeaderNotAvailable
+      rescue KafkaLegacy::LeaderNotAvailable
         @logger.warn "Leader not yet available for `#{name}`, waiting 1s..."
         sleep 1
 
         retry
-      rescue Kafka::UnknownTopicOrPartition
+      rescue KafkaLegacy::UnknownTopicOrPartition
         @logger.warn "Topic `#{name}` not yet created, waiting 1s..."
         sleep 1
 
@@ -220,7 +220,7 @@ module KafkaLegacy
 
     def describe_topic(name, configs = [])
       options = {
-        resources: [[Kafka::Protocol::RESOURCE_TYPE_TOPIC, name, configs]]
+        resources: [[KafkaLegacy::Protocol::RESOURCE_TYPE_TOPIC, name, configs]]
       }
       broker = controller_broker
 
@@ -239,7 +239,7 @@ module KafkaLegacy
 
     def alter_topic(name, configs = {})
       options = {
-        resources: [[Kafka::Protocol::RESOURCE_TYPE_TOPIC, name, configs]]
+        resources: [[KafkaLegacy::Protocol::RESOURCE_TYPE_TOPIC, name, configs]]
       }
 
       broker = controller_broker
@@ -320,7 +320,7 @@ module KafkaLegacy
       end
 
       offsets
-    rescue Kafka::ProtocolError
+    rescue KafkaLegacy::ProtocolError
       mark_as_stale!
       raise
     end

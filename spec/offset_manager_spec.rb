@@ -2,14 +2,14 @@
 
 require 'timecop'
 
-describe Kafka::OffsetManager do
+describe KafkaLegacy::OffsetManager do
   let(:cluster) { double(:cluster) }
   let(:group) { double(:group) }
   let(:fetcher) { double(:fetcher) }
   let(:logger) { LOGGER }
 
   let(:offset_manager) {
-    Kafka::OffsetManager.new(
+    KafkaLegacy::OffsetManager.new(
       cluster: cluster,
       group: group,
       fetcher: fetcher,
@@ -47,7 +47,7 @@ describe Kafka::OffsetManager do
 
   describe "#commit_offsets_if_necessary" do
     let(:fetched_offsets_response) do
-      Kafka::Protocol::OffsetFetchResponse.new(topics: {
+      KafkaLegacy::Protocol::OffsetFetchResponse.new(topics: {
         "greetings" => {
           0 => partition_offset_info(-1),
           1 => partition_offset_info(24),
@@ -160,7 +160,7 @@ describe Kafka::OffsetManager do
     end
 
     def partition_offset_info(offset)
-      Kafka::Protocol::OffsetFetchResponse::PartitionOffsetInfo.new(offset: offset, metadata: nil, error_code: 0)
+      KafkaLegacy::Protocol::OffsetFetchResponse::PartitionOffsetInfo.new(offset: offset, metadata: nil, error_code: 0)
     end
   end
 

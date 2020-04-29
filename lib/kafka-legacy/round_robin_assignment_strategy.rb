@@ -43,7 +43,7 @@ module KafkaLegacy
       end
 
       group_assignment
-    rescue Kafka::LeaderNotAvailable
+    rescue KafkaLegacy::LeaderNotAvailable
       sleep 1
       retry
     end

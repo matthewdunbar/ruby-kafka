@@ -13,7 +13,7 @@ describe "Topic management API", functional: true do
   end
 
   example "creating a topic with config entries" do
-    unless kafka.supports_api?(Kafka::Protocol::DESCRIBE_CONFIGS_API)
+    unless kafka.supports_api?(KafkaLegacy::Protocol::DESCRIBE_CONFIGS_API)
       skip("This Kafka version not support ")
     end
 
@@ -37,7 +37,7 @@ describe "Topic management API", functional: true do
   end
 
   example "create partitions" do
-    unless kafka.supports_api?(Kafka::Protocol::CREATE_PARTITIONS_API)
+    unless kafka.supports_api?(KafkaLegacy::Protocol::CREATE_PARTITIONS_API)
       skip("This Kafka version not support ")
     end
     topic = generate_topic_name
@@ -50,7 +50,7 @@ describe "Topic management API", functional: true do
   end
 
   example "describe a topic" do
-    unless kafka.supports_api?(Kafka::Protocol::DESCRIBE_CONFIGS_API)
+    unless kafka.supports_api?(KafkaLegacy::Protocol::DESCRIBE_CONFIGS_API)
       skip("This Kafka version not support DescribeConfig API")
     end
 
@@ -64,7 +64,7 @@ describe "Topic management API", functional: true do
   end
 
   example "alter a topic configuration" do
-    unless kafka.supports_api?(Kafka::Protocol::ALTER_CONFIGS_API)
+    unless kafka.supports_api?(KafkaLegacy::Protocol::ALTER_CONFIGS_API)
       skip("This Kafka version not support AlterConfig API")
     end
 

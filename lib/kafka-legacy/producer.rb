@@ -12,13 +12,13 @@ module KafkaLegacy
 
   # Allows sending messages to a Kafka cluster.
   #
-  # Typically you won't instantiate this class yourself, but rather have {Kafka::Client}
+  # Typically you won't instantiate this class yourself, but rather have {KafkaLegacy::Client}
   # do it for you, e.g.
   #
-  #     # Will instantiate Kafka::Client
+  #     # Will instantiate KafkaLegacy::Client
   #     kafka = Kafka.new(["kafka1:9092", "kafka2:9092"])
   #
-  #     # Will instantiate Kafka::Producer
+  #     # Will instantiate KafkaLegacy::Producer
   #     producer = kafka.producer
   #
   # This is done in order to share a logger as well as a pool of broker connections across
@@ -358,7 +358,7 @@ module KafkaLegacy
             partition: partition,
             create_time: message.create_time,
           )
-        rescue Kafka::Error => e
+        rescue KafkaLegacy::Error => e
           @instrumenter.instrument("topic_error.producer", {
             topic: message.topic,
             exception: [e.class.to_s, e.message],

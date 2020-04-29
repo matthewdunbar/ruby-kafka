@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Kafka::FetchedBatch do
+describe KafkaLegacy::FetchedBatch do
   describe "#offset_lag" do
     context "empty batch" do
       it "is 0" do

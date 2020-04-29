@@ -30,10 +30,10 @@ class FakeBroker
     end
 
     topics = messages_for_topics.map {|topic, messages_for_topic|
-      Kafka::Protocol::ProduceResponse::TopicInfo.new(
+      KafkaLegacy::Protocol::ProduceResponse::TopicInfo.new(
         topic: topic,
         partitions: messages_for_topic.map {|partition, message_set|
-          Kafka::Protocol::ProduceResponse::PartitionInfo.new(
+          KafkaLegacy::Protocol::ProduceResponse::PartitionInfo.new(
             partition: partition,
             error_code: error_code_for_partition(topic, partition),
             offset: message_set.messages.size,
@@ -44,7 +44,7 @@ class FakeBroker
     }
 
     if required_acks != 0
-      Kafka::Protocol::ProduceResponse.new(topics: topics)
+      KafkaLegacy::Protocol::ProduceResponse.new(topics: topics)
     else
       nil
     end

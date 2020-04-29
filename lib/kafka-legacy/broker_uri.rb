@@ -34,7 +34,7 @@ module KafkaLegacy
       end
 
       unless URI_SCHEMES.include?(uri.scheme)
-        raise Kafka::Error, "invalid protocol `#{uri.scheme}` in `#{str}`"
+        raise KafkaLegacy::Error, "invalid protocol `#{uri.scheme}` in `#{str}`"
       end
 
       uri

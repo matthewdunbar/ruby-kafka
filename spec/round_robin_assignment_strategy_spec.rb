@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe Kafka::RoundRobinAssignmentStrategy do
+describe KafkaLegacy::RoundRobinAssignmentStrategy do
   it "assigns all partitions" do
     cluster = double(:cluster)
     strategy = described_class.new(cluster: cluster)

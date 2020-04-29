@@ -57,7 +57,7 @@ describe "Producer API", functional: true do
     expect(member.client_id).to_not be_nil
     expect(member.client_host).to_not be_nil
     expect(member.member_id).to_not be_nil
-    expect(member.member_assignment).to be_an_instance_of(Kafka::Protocol::MemberAssignment)
+    expect(member.member_assignment).to be_an_instance_of(KafkaLegacy::Protocol::MemberAssignment)
     expect(member.member_assignment.topics[topic].sort).to eq([0, 1, 2])
   end
 
@@ -92,7 +92,7 @@ describe "Producer API", functional: true do
   example "fetching the partition count for a topic that doesn't yet exist" do
     topic = "unknown-topic-#{rand(1000)}"
 
-    expect { kafka.partitions_for(topic) }.to raise_exception(Kafka::LeaderNotAvailable)
+    expect { kafka.partitions_for(topic) }.to raise_exception(KafkaLegacy::LeaderNotAvailable)
 
     # Eventually the call should succeed.
     expect {
@@ -119,8 +119,8 @@ describe "Producer API", functional: true do
       Timecop.freeze(now) do
         kafka.deliver_message("yolo", topic: topic, key: "xoxo", partition: 0)
       end
-    }.to raise_exception(Kafka::DeliveryFailed) {|exception|
-      expect(exception.failed_messages).to eq [Kafka::PendingMessage.new("yolo", "xoxo", topic, 0, nil, now)]
+    }.to raise_exception(KafkaLegacy::DeliveryFailed) {|exception|
+      expect(exception.failed_messages).to eq [KafkaLegacy::PendingMessage.new("yolo", "xoxo", topic, 0, nil, now)]
     }
   end
 

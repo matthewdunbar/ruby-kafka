@@ -62,7 +62,7 @@ module KafkaLegacy
 
     # Initializes a new AsyncProducer.
     #
-    # @param sync_producer [Kafka::Producer] the synchronous producer that should
+    # @param sync_producer [KafkaLegacy::Producer] the synchronous producer that should
     #   be used in the background.
     # @param max_queue_size [Integer] the maximum number of messages allowed in
     #   the queue.
@@ -95,8 +95,8 @@ module KafkaLegacy
 
     # Produces a message to the specified topic.
     #
-    # @see Kafka::Producer#produce
-    # @param (see Kafka::Producer#produce)
+    # @see KafkaLegacy::Producer#produce
+    # @param (see KafkaLegacy::Producer#produce)
     # @raise [BufferOverflow] if the message queue is full.
     # @return [nil]
     def produce(value, topic:, **options)
@@ -122,7 +122,7 @@ module KafkaLegacy
     # Asynchronously delivers the buffered messages. This method will return
     # immediately and the actual work will be done in the background.
     #
-    # @see Kafka::Producer#deliver_messages
+    # @see KafkaLegacy::Producer#deliver_messages
     # @return [nil]
     def deliver_messages
       @queue << [:deliver_messages, nil]
@@ -133,7 +133,7 @@ module KafkaLegacy
     # Shuts down the producer, releasing the network resources used. This
     # method will block until the buffered messages have been delivered.
     #
-    # @see Kafka::Producer#shutdown
+    # @see KafkaLegacy::Producer#shutdown
     # @return [nil]
     def shutdown
       @timer_thread && @timer_thread.exit
@@ -217,7 +217,7 @@ module KafkaLegacy
             raise "Unknown operation #{operation.inspect}"
           end
         end
-      rescue Kafka::Error => e
+      rescue KafkaLegacy::Error => e
         @logger.error "Unexpected Kafka error #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
         @logger.info "Restarting in 10 seconds..."
 

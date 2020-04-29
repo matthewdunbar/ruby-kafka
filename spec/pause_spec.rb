@@ -2,9 +2,9 @@
 
 require "ostruct"
 
-describe Kafka::Pause do
+describe KafkaLegacy::Pause do
   let(:clock) { OpenStruct.new(now: 30) }
-  let(:pause) { Kafka::Pause.new(clock: clock) }
+  let(:pause) { KafkaLegacy::Pause.new(clock: clock) }
 
   describe "#paused?" do
     it "returns true if we're paused" do

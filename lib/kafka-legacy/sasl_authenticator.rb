@@ -42,10 +42,10 @@ module KafkaLegacy
       return unless enabled?
 
       ident = @mechanism.ident
-      response = connection.send_request(Kafka::Protocol::SaslHandshakeRequest.new(ident))
+      response = connection.send_request(KafkaLegacy::Protocol::SaslHandshakeRequest.new(ident))
 
       unless response.error_code == 0 && response.enabled_mechanisms.include?(ident)
-        raise Kafka::Error, "#{ident} is not supported."
+        raise KafkaLegacy::Error, "#{ident} is not supported."
       end
 
       @mechanism.authenticate!(connection.to_s, connection.encoder, connection.decoder)

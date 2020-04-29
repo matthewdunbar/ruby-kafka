@@ -2,19 +2,19 @@
 
 require 'fake_server'
 
-describe Kafka::Connection do
+describe KafkaLegacy::Connection do
   let(:logger) { LOGGER }
   let(:host) { "127.0.0.1" }
   let(:server) { TCPServer.new(host, 0) }
   let(:port) { server.addr[1] }
 
   let(:connection) {
-    Kafka::Connection.new(
+    KafkaLegacy::Connection.new(
       host: host,
       port: port,
       client_id: "test",
       logger: logger,
-      instrumenter: Kafka::Instrumenter.new(client_id: "test"),
+      instrumenter: KafkaLegacy::Instrumenter.new(client_id: "test"),
       connect_timeout: 0.1,
       socket_timeout: 0.1,
     )
@@ -71,7 +71,7 @@ describe Kafka::Connection do
 
       expect {
         connection.send_request(request)
-      }.to raise_error(Kafka::ConnectionError)
+      }.to raise_error(KafkaLegacy::ConnectionError)
     end
 
     it "re-opens the connection after a network error" do

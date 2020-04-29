@@ -6,7 +6,7 @@ module KafkaLegacy
 
   # Fetches messages from one or more partitions.
   #
-  #     operation = Kafka::FetchOperation.new(
+  #     operation = KafkaLegacy::FetchOperation.new(
   #       cluster: cluster,
   #       logger: logger,
   #       min_bytes: 1,
@@ -79,13 +79,13 @@ module KafkaLegacy
           fetched_topic.partitions.map {|fetched_partition|
             begin
               Protocol.handle_error(fetched_partition.error_code)
-            rescue Kafka::OffsetOutOfRange => e
+            rescue KafkaLegacy::OffsetOutOfRange => e
               e.topic = fetched_topic.name
               e.partition = fetched_partition.partition
               e.offset = topics.fetch(e.topic).fetch(e.partition).fetch(:fetch_offset)
 
               raise e
-            rescue Kafka::Error => e
+            rescue KafkaLegacy::Error => e
               topic = fetched_topic.name
               partition = fetched_partition.partition
               @logger.error "Failed to fetch from #{topic}/#{partition}: #{e.message}"
@@ -109,7 +109,7 @@ module KafkaLegacy
           }
         }
       }
-    rescue Kafka::ConnectionError, Kafka::LeaderNotAvailable, Kafka::NotLeaderForPartition, Kafka::UnknownTopicOrPartition
+    rescue KafkaLegacy::ConnectionError, KafkaLegacy::LeaderNotAvailable, KafkaLegacy::NotLeaderForPartition, KafkaLegacy::UnknownTopicOrPartition
       @cluster.mark_as_stale!
 
       raise

@@ -3,7 +3,7 @@
 require "kafka-legacy/datadog"
 require "fake_datadog_agent"
 
-describe Kafka::Datadog do
+describe KafkaLegacy::Datadog do
   let(:agent) { FakeDatadogAgent.new }
 
   before do
@@ -15,10 +15,10 @@ describe Kafka::Datadog do
   end
 
   it "emits metrics to the Datadog agent" do
-    Kafka::Datadog.host = agent.host
-    Kafka::Datadog.port = agent.port
+    KafkaLegacy::Datadog.host = agent.host
+    KafkaLegacy::Datadog.port = agent.port
 
-    client = Kafka::Datadog.statsd
+    client = KafkaLegacy::Datadog.statsd
 
     client.increment("greetings")
 

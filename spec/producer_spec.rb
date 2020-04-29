@@ -3,9 +3,9 @@
 require "fake_broker"
 require "timecop"
 
-describe Kafka::Producer do
+describe KafkaLegacy::Producer do
   let(:logger) { LOGGER }
-  let(:instrumenter) { Kafka::Instrumenter.new(client_id: "test") }
+  let(:instrumenter) { KafkaLegacy::Instrumenter.new(client_id: "test") }
   let(:broker1) { FakeBroker.new }
   let(:broker2) { FakeBroker.new }
   let(:compressor) { double(:compressor) }
@@ -54,14 +54,14 @@ describe Kafka::Producer do
 
       expect {
         producer.produce("hello1", topic: "greetings", partition: 0)
-      }.to raise_error(Kafka::BufferOverflow)
+      }.to raise_error(KafkaLegacy::BufferOverflow)
 
       expect(producer.buffer_size).to eq 2
     end
 
     it "works even when Kafka is unavailable" do
-      allow(broker1).to receive(:produce).and_raise(Kafka::Error)
-      allow(broker2).to receive(:produce).and_raise(Kafka::Error)
+      allow(broker1).to receive(:produce).and_raise(KafkaLegacy::Error)
+      allow(broker2).to receive(:produce).and_raise(KafkaLegacy::Error)
 
       producer.produce("hello", key: "greeting1", topic: "greetings", partition_key: "hey")
 
@@ -70,7 +70,7 @@ describe Kafka::Producer do
       # Only when we try to send the messages to Kafka do we experience the issue.
       expect {
         producer.deliver_messages
-      }.to raise_exception(Kafka::Error)
+      }.to raise_exception(KafkaLegacy::Error)
     end
 
     it "requires `partition` to be an Integer" do
@@ -138,8 +138,8 @@ describe Kafka::Producer do
 
       producer.produce("hello1", topic: "greetings", partition: 0)
 
-      expect { producer.deliver_messages }.to raise_error(Kafka::DeliveryFailed) {|exception|
-        expect(exception.failed_messages).to eq [Kafka::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
+      expect { producer.deliver_messages }.to raise_error(KafkaLegacy::DeliveryFailed) {|exception|
+        expect(exception.failed_messages).to eq [KafkaLegacy::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
       }
 
       # The producer was not able to write the message, but it's still buffered.
@@ -163,7 +163,7 @@ describe Kafka::Producer do
       partitions_for_call_count = 0
       allow(cluster).to receive(:partitions_for) do
         partitions_for_call_count += 1
-        raise(Kafka::UnknownTopicOrPartition.new) if partitions_for_call_count == 1
+        raise(KafkaLegacy::UnknownTopicOrPartition.new) if partitions_for_call_count == 1
         [0, 1]
       end
 
@@ -173,12 +173,12 @@ describe Kafka::Producer do
     end
 
     it "handles when there's a connection error when fetching topic metadata" do
-      allow(cluster).to receive(:get_leader).and_raise(Kafka::ConnectionError)
+      allow(cluster).to receive(:get_leader).and_raise(KafkaLegacy::ConnectionError)
 
       producer.produce("hello1", topic: "greetings", partition: 0)
 
-      expect { producer.deliver_messages }.to raise_error(Kafka::DeliveryFailed) {|exception|
-        expect(exception.failed_messages).to eq [Kafka::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
+      expect { producer.deliver_messages }.to raise_error(KafkaLegacy::DeliveryFailed) {|exception|
+        expect(exception.failed_messages).to eq [KafkaLegacy::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
       }
 
       # The producer was not able to write the message, but it's still buffered.
@@ -193,12 +193,12 @@ describe Kafka::Producer do
     end
 
     it "handles when there's a connection error when refreshing cluster metadata" do
-      allow(cluster).to receive(:refresh_metadata_if_necessary!).and_raise(Kafka::ConnectionError)
+      allow(cluster).to receive(:refresh_metadata_if_necessary!).and_raise(KafkaLegacy::ConnectionError)
 
       producer.produce("hello1", topic: "greetings", partition: 0)
 
-      expect { producer.deliver_messages }.to raise_error(Kafka::DeliveryFailed) {|exception|
-        expect(exception.failed_messages).to eq [Kafka::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
+      expect { producer.deliver_messages }.to raise_error(KafkaLegacy::DeliveryFailed) {|exception|
+        expect(exception.failed_messages).to eq [KafkaLegacy::PendingMessage.new("hello1", nil, "greetings", 0, nil, now)]
       }
 
       # The producer was not able to write the message, but it's still buffered.
@@ -226,7 +226,7 @@ describe Kafka::Producer do
     end
 
     it "sends a notification when there's an error finding the leader for a partition" do
-      allow(cluster).to receive(:get_leader).and_raise(Kafka::UnknownTopicOrPartition.new("hello"))
+      allow(cluster).to receive(:get_leader).and_raise(KafkaLegacy::UnknownTopicOrPartition.new("hello"))
 
       events = []
 
@@ -236,13 +236,13 @@ describe Kafka::Producer do
 
       ActiveSupport::Notifications.subscribed(subscriber, "topic_error.producer.kafka") do
         producer.produce("hello1", topic: "greetings", partition: 0)
-        expect { producer.deliver_messages }.to raise_error(Kafka::DeliveryFailed)
+        expect { producer.deliver_messages }.to raise_error(KafkaLegacy::DeliveryFailed)
       end
 
       event = events.last
 
       expect(event.payload[:topic]).to eq "greetings"
-      expect(event.payload[:exception]).to eq ["Kafka::UnknownTopicOrPartition", "hello"]
+      expect(event.payload[:exception]).to eq ["KafkaLegacy::UnknownTopicOrPartition", "hello"]
     end
 
     it "sends a notification when there's an error writing messages to a partition" do
@@ -260,13 +260,13 @@ describe Kafka::Producer do
 
       ActiveSupport::Notifications.subscribed(subscriber, "topic_error.producer.kafka") do
         producer.produce("hello1", topic: "greetings", partition: 0)
-        expect { producer.deliver_messages }.to raise_error(Kafka::DeliveryFailed)
+        expect { producer.deliver_messages }.to raise_error(KafkaLegacy::DeliveryFailed)
       end
 
       event = events.last
 
       expect(event.payload[:topic]).to eq "greetings"
-      expect(event.payload[:exception]).to eq ["Kafka::UnknownTopicOrPartition", "Kafka::UnknownTopicOrPartition"]
+      expect(event.payload[:exception]).to eq ["KafkaLegacy::UnknownTopicOrPartition", "KafkaLegacy::UnknownTopicOrPartition"]
     end
   end
 
@@ -293,6 +293,6 @@ describe Kafka::Producer do
       max_buffer_bytesize: 10_000_000,
     }
 
-    Kafka::Producer.new(**default_options.merge(options))
+    KafkaLegacy::Producer.new(**default_options.merge(options))
   end
 end

@@ -51,7 +51,7 @@ module KafkaLegacy
         @codec_id != 0
       end
 
-      # @return [Array<Kafka::Protocol::Message>]
+      # @return [Array<KafkaLegacy::Protocol::Message>]
       def decompress
         codec = Compression.find_codec_by_id(@codec_id)
 
@@ -86,7 +86,7 @@ module KafkaLegacy
           # have a timestamp attribute, so we'll just set the timestamp to nil.
           timestamp = nil if timestamp.zero?
         else
-          raise Kafka::Error, "Invalid magic byte: #{magic_byte}"
+          raise KafkaLegacy::Error, "Invalid magic byte: #{magic_byte}"
         end
 
         key = message_decoder.bytes

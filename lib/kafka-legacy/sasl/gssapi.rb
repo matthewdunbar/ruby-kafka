@@ -32,7 +32,7 @@ module KafkaLegacy
 
         # verify incoming token
         unless @gssapi_ctx.init_context(token_to_verify)
-          raise Kafka::Error, "GSSAPI context verification failed."
+          raise KafkaLegacy::Error, "GSSAPI context verification failed."
         end
 
         # we can continue, so send OK
@@ -44,7 +44,7 @@ module KafkaLegacy
 
       def handshake_messages
         msg = @decoder.bytes
-        raise Kafka::Error, "GSSAPI negotiation failed." unless msg
+        raise KafkaLegacy::Error, "GSSAPI negotiation failed." unless msg
         # unwrap with integrity only
         msg_unwrapped = @gssapi_ctx.unwrap_message(msg, GSSAPI_CONFIDENTIALITY)
         msg_wrapped = @gssapi_ctx.wrap_message(msg_unwrapped + @principal, GSSAPI_CONFIDENTIALITY)

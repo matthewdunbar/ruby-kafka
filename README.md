@@ -180,9 +180,9 @@ producer.produce("hello1", topic: "test-messages")
 producer.deliver_messages
 ```
 
-`#produce` will buffer the message in the producer but will _not_ actually send it to the Kafka cluster. Buffered messages are only delivered to the Kafka cluster once `#deliver_messages` is called. Since messages may be destined for different partitions, this could involve writing to more than one Kafka broker. Note that a failure to send all buffered messages after the configured number of retries will result in `Kafka::DeliveryFailed` being raised. This can be rescued and ignored; the messages will be kept in the buffer until the next attempt.
+`#produce` will buffer the message in the producer but will _not_ actually send it to the Kafka cluster. Buffered messages are only delivered to the Kafka cluster once `#deliver_messages` is called. Since messages may be destined for different partitions, this could involve writing to more than one Kafka broker. Note that a failure to send all buffered messages after the configured number of retries will result in `KafkaLegacy::DeliveryFailed` being raised. This can be rescued and ignored; the messages will be kept in the buffer until the next attempt.
 
-Read the docs for [Kafka::Producer](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Producer) for more details.
+Read the docs for [KafkaLegacy::Producer](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Producer) for more details.
 
 #### Asynchronously Producing Messages
 
@@ -230,7 +230,7 @@ producer.produce("hello", topic: "greetings")
 
 When calling `#shutdown`, the producer will attempt to deliver the messages and the method call will block until that has happened. Note that there's no _guarantee_ that the messages will be delivered.
 
-**Note:** if the calling thread produces messages faster than the producer can write them to Kafka, you'll eventually run into problems. The internal queue used for sending messages from the calling thread to the background worker has a size limit; once this limit is reached, a call to `#produce` will raise `Kafka::BufferOverflow`.
+**Note:** if the calling thread produces messages faster than the producer can write them to Kafka, you'll eventually run into problems. The internal queue used for sending messages from the calling thread to the background worker has a size limit; once this limit is reached, a call to `#produce` will raise `KafkaLegacy::BufferOverflow`.
 
 #### Serialization
 
@@ -317,7 +317,7 @@ producer.produce(event, topic: "events", partition: partition)
 
 The producer is designed for resilience in the face of temporary network errors, Kafka broker failovers, and other issues that prevent the client from writing messages to the destination topics. It does this by employing local, in-memory buffers. Only when messages are acknowledged by a Kafka broker will they be removed from the buffer.
 
-Typically, you'd configure the producer to retry failed attempts at sending messages, but sometimes all retries are exhausted. In that case, `Kafka::DeliveryFailed` is raised from `Kafka::Producer#deliver_messages`. If you wish to have your application be resilient to this happening (e.g. if you're logging to Kafka from a web application) you can rescue this exception. The failed messages are still retained in the buffer, so a subsequent call to `#deliver_messages` will still attempt to send them.
+Typically, you'd configure the producer to retry failed attempts at sending messages, but sometimes all retries are exhausted. In that case, `KafkaLegacy::DeliveryFailed` is raised from `KafkaLegacy::Producer#deliver_messages`. If you wish to have your application be resilient to this happening (e.g. if you're logging to Kafka from a web application) you can rescue this exception. The failed messages are still retained in the buffer, so a subsequent call to `#deliver_messages` will still attempt to send them.
 
 Note that there's a maximum buffer size; by default, it's set to 1,000 messages and 10MB. It's possible to configure both these numbers:
 
@@ -369,7 +369,7 @@ producer = kafka.producer
 
 producer.produce("hello", topic: "greetings")
 
-# If this line fails with Kafka::DeliveryFailed we *may* have succeeded in delivering
+# If this line fails with KafkaLegacy::DeliveryFailed we *may* have succeeded in delivering
 # the message to Kafka but won't know for sure.
 producer.deliver_messages
 
@@ -824,13 +824,13 @@ The Statsd reporter is automatically enabled when the `kafka/statsd` library is 
 require "kafka-legacy/statsd"
 
 # Default is "ruby_kafka".
-Kafka::Statsd.namespace = "custom-namespace"
+KafkaLegacy::Statsd.namespace = "custom-namespace"
 
 # Default is "127.0.0.1".
-Kafka::Statsd.host = "statsd.something.com"
+KafkaLegacy::Statsd.host = "statsd.something.com"
 
 # Default is 8125.
-Kafka::Statsd.port = 1234
+KafkaLegacy::Statsd.port = 1234
 ```
 
 
@@ -843,13 +843,13 @@ The Datadog reporter is automatically enabled when the `kafka/datadog` library i
 require "kafka-legacy/datadog"
 
 # Default is "ruby_kafka".
-Kafka::Datadog.namespace = "custom-namespace"
+KafkaLegacy::Datadog.namespace = "custom-namespace"
 
 # Default is "127.0.0.1".
-Kafka::Datadog.host = "statsd.something.com"
+KafkaLegacy::Datadog.host = "statsd.something.com"
 
 # Default is 8125.
-Kafka::Datadog.port = 1234
+KafkaLegacy::Datadog.port = 1234
 ```
 
 ### Understanding Timeouts
@@ -866,7 +866,7 @@ It's important to understand how timeouts work if you have a latency sensitive a
 * `ack_timeout` is a timeout executed by a broker when the client is sending messages to it. It defines the number of seconds the broker should wait for replicas to acknowledge the write before responding to the client with an error. As such, it relates to the `required_acks` setting. It should be set lower than `socket_timeout`.
 * `retry_backoff` configures the number of seconds to wait after a failed attempt to send messages to a Kafka broker before retrying. The `max_retries` setting defines the maximum number of retries to attempt, and so the total duration could be up to `max_retries * retry_backoff` seconds. The timeout can be arbitrarily long, and shouldn't be too short: if a broker goes down its partitions will be handed off to another broker, and that can take tens of seconds.
 
-When sending many messages, it's likely that the client needs to send some messages to each broker in the cluster. Given `n` brokers in the cluster, the total wait time when calling `Kafka::Producer#deliver_messages` can be up to
+When sending many messages, it's likely that the client needs to send some messages to each broker in the cluster. Given `n` brokers in the cluster, the total wait time when calling `KafkaLegacy::Producer#deliver_messages` can be up to
 
     n * (connect_timeout + socket_timeout + retry_backoff) * max_retries
 
@@ -1043,11 +1043,11 @@ After a topic is marked as deleted, Kafka only hides it from clients. It would t
 
 The library has been designed as a layered system, with each layer having a clear responsibility:
 
-* The **network layer** handles low-level connection tasks, such as keeping open connections to each Kafka broker, reconnecting when there's an error, etc. See [`Kafka::Connection`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Connection) for more details.
-* The **protocol layer** is responsible for encoding and decoding the Kafka protocol's various structures. See [`Kafka::Protocol`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Protocol) for more details.
-* The **operational layer** provides high-level operations, such as fetching messages from a topic, that may involve more than one API request to the Kafka cluster. Some complex operations are made available through [`Kafka::Cluster`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Cluster), which represents an entire cluster, while simpler ones are only available through [`Kafka::Broker`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Broker), which represents a single Kafka broker. In general, `Kafka::Cluster` is the high-level API, with more polish.
-* The **API layer** provides APIs to users of the libraries. The Consumer API is implemented in [`Kafka::Consumer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Consumer) while the Producer API is implemented in [`Kafka::Producer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Producer) and [`Kafka::AsyncProducer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/AsyncProducer).
-* The **configuration layer** provides a way to set up and configure the client, as well as easy entrypoints to the various APIs. [`Kafka::Client`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Client) implements the public APIs. For convenience, the method [`Kafka.new`](http://www.rubydoc.info/gems/ruby-kafka/Kafka.new) can instantiate the class for you.
+* The **network layer** handles low-level connection tasks, such as keeping open connections to each Kafka broker, reconnecting when there's an error, etc. See [`KafkaLegacy::Connection`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Connection) for more details.
+* The **protocol layer** is responsible for encoding and decoding the Kafka protocol's various structures. See [`KafkaLegacy::Protocol`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Protocol) for more details.
+* The **operational layer** provides high-level operations, such as fetching messages from a topic, that may involve more than one API request to the Kafka cluster. Some complex operations are made available through [`KafkaLegacy::Cluster`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Cluster), which represents an entire cluster, while simpler ones are only available through [`KafkaLegacy::Broker`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Broker), which represents a single Kafka broker. In general, `KafkaLegacy::Cluster` is the high-level API, with more polish.
+* The **API layer** provides APIs to users of the libraries. The Consumer API is implemented in [`KafkaLegacy::Consumer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Consumer) while the Producer API is implemented in [`KafkaLegacy::Producer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Producer) and [`KafkaLegacy::AsyncProducer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/AsyncProducer).
+* The **configuration layer** provides a way to set up and configure the client, as well as easy entrypoints to the various APIs. [`KafkaLegacy::Client`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/Client) implements the public APIs. For convenience, the method [`Kafka.new`](http://www.rubydoc.info/gems/ruby-kafka/Kafka.new) can instantiate the class for you.
 
 Note that only the API and configuration layers have any backwards compatibility guarantees – the other layers are considered internal and may change without warning. Don't use them directly.
 
@@ -1055,15 +1055,15 @@ Note that only the API and configuration layers have any backwards compatibility
 
 The producer is designed with resilience and operational ease of use in mind, sometimes at the cost of raw performance. For instance, the operation is heavily instrumented, allowing operators to monitor the producer at a very granular level.
 
-The producer has two main internal data structures: a list of _pending messages_ and a _message buffer_. When the user calls [`Kafka::Producer#produce`](http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FProducer%3Aproduce), a message is appended to the pending message list, but no network communication takes place. This means that the call site does not have to handle the broad range of errors that can happen at the network or protocol level. Instead, those errors will only happen once [`Kafka::Producer#deliver_messages`](http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FProducer%3Adeliver_messages) is called. This method will go through the pending messages one by one, making sure they're assigned a partition. This may fail for some messages, as it could require knowing the current configuration for the message's topic, necessitating API calls to Kafka. Messages that cannot be assigned a partition are kept in the list, while the others are written into the message buffer. The producer then figures out which topic partitions are led by which Kafka brokers so that messages can be sent to the right place – in Kafka, it is the responsibility of the client to do this routing. A separate _produce_ API request will be sent to each broker; the response will be inspected; and messages that were acknowledged by the broker will be removed from the message buffer. Any messages that were _not_ acknowledged will be kept in the buffer.
+The producer has two main internal data structures: a list of _pending messages_ and a _message buffer_. When the user calls [`KafkaLegacy::Producer#produce`](http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FProducer%3Aproduce), a message is appended to the pending message list, but no network communication takes place. This means that the call site does not have to handle the broad range of errors that can happen at the network or protocol level. Instead, those errors will only happen once [`KafkaLegacy::Producer#deliver_messages`](http://www.rubydoc.info/gems/ruby-kafka/Kafka%2FProducer%3Adeliver_messages) is called. This method will go through the pending messages one by one, making sure they're assigned a partition. This may fail for some messages, as it could require knowing the current configuration for the message's topic, necessitating API calls to Kafka. Messages that cannot be assigned a partition are kept in the list, while the others are written into the message buffer. The producer then figures out which topic partitions are led by which Kafka brokers so that messages can be sent to the right place – in Kafka, it is the responsibility of the client to do this routing. A separate _produce_ API request will be sent to each broker; the response will be inspected; and messages that were acknowledged by the broker will be removed from the message buffer. Any messages that were _not_ acknowledged will be kept in the buffer.
 
-If there are any messages left in either the pending message list _or_ the message buffer after this operation, [`Kafka::DeliveryFailed`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/DeliveryFailed) will be raised. This exception must be rescued and handled by the user, possibly by calling `#deliver_messages` at a later time.
+If there are any messages left in either the pending message list _or_ the message buffer after this operation, [`KafkaLegacy::DeliveryFailed`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/DeliveryFailed) will be raised. This exception must be rescued and handled by the user, possibly by calling `#deliver_messages` at a later time.
 
 ### Asynchronous Producer Design
 
 The synchronous producer allows the user fine-grained control over when network activity and the possible errors arising from that will take place, but it requires the user to handle the errors nonetheless. The async producer provides a more hands-off approach that trades off control for ease of use and resilience.
 
-Instead of writing directly into the pending message list, [`Kafka::AsyncProducer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/AsyncProducer) writes the message to an internal thread-safe queue, returning immediately. A background thread reads messages off the queue and passes them to a synchronous producer.
+Instead of writing directly into the pending message list, [`KafkaLegacy::AsyncProducer`](http://www.rubydoc.info/gems/ruby-kafka/Kafka/AsyncProducer) writes the message to an internal thread-safe queue, returning immediately. A background thread reads messages off the queue and passes them to a synchronous producer.
 
 Rather than triggering message deliveries directly, users of the async producer will typically set up _automatic triggers_, such as a timer.
 

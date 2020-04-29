@@ -126,8 +126,8 @@ module KafkaLegacy
         @socket = SocketWithTimeout.new(@host, @port, connect_timeout: @connect_timeout, timeout: @socket_timeout)
       end
 
-      @encoder = Kafka::Protocol::Encoder.new(@socket)
-      @decoder = Kafka::Protocol::Decoder.new(@socket)
+      @encoder = KafkaLegacy::Protocol::Encoder.new(@socket)
+      @decoder = KafkaLegacy::Protocol::Decoder.new(@socket)
 
       # Correlation id is initialized to zero and bumped for each request.
       @correlation_id = 0
@@ -151,7 +151,7 @@ module KafkaLegacy
     #
     # @return [nil]
     def write_request(request, notification)
-      message = Kafka::Protocol::RequestMessage.new(
+      message = KafkaLegacy::Protocol::RequestMessage.new(
         api_key: request.api_key,
         api_version: request.respond_to?(:api_version) ? request.api_version : 0,
         correlation_id: @correlation_id,
@@ -159,7 +159,7 @@ module KafkaLegacy
         request: request,
       )
 
-      data = Kafka::Protocol::Encoder.encode_with(message)
+      data = KafkaLegacy::Protocol::Encoder.encode_with(message)
       notification[:request_size] = data.bytesize
 
       @encoder.write_bytes(data)
@@ -183,7 +183,7 @@ module KafkaLegacy
       notification[:response_size] = data.bytesize
 
       buffer = StringIO.new(data)
-      response_decoder = Kafka::Protocol::Decoder.new(buffer)
+      response_decoder = KafkaLegacy::Protocol::Decoder.new(buffer)
 
       correlation_id = response_decoder.int32
       response = response_class.decode(response_decoder)
@@ -207,7 +207,7 @@ module KafkaLegacy
         if correlation_id < @correlation_id
           @logger.error "Received out-of-order response id #{correlation_id}, was expecting #{@correlation_id}"
         elsif correlation_id > @correlation_id
-          raise Kafka::Error, "Correlation id mismatch: expected #{@correlation_id} but got #{correlation_id}"
+          raise KafkaLegacy::Error, "Correlation id mismatch: expected #{@correlation_id} but got #{correlation_id}"
         else
           return response
         end

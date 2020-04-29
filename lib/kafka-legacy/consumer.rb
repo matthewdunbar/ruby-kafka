@@ -189,10 +189,10 @@ module KafkaLegacy
     #   mark a message as successfully processed when the block returns
     #   without an exception. Once marked successful, the offsets of processed
     #   messages can be committed to Kafka.
-    # @yieldparam message [Kafka::FetchedMessage] a message fetched from Kafka.
-    # @raise [Kafka::ProcessingError] if there was an error processing a message.
+    # @yieldparam message [KafkaLegacy::FetchedMessage] a message fetched from Kafka.
+    # @raise [KafkaLegacy::ProcessingError] if there was an error processing a message.
     #   The original exception will be returned by calling `#cause` on the
-    #   {Kafka::ProcessingError} instance.
+    #   {KafkaLegacy::ProcessingError} instance.
     # @return [nil]
     def each_message(min_bytes: 1, max_bytes: 10485760, max_wait_time: 1, automatically_mark_as_processed: true)
       @fetcher.configure(
@@ -276,7 +276,7 @@ module KafkaLegacy
     #   mark a batch's messages as successfully processed when the block returns
     #   without an exception. Once marked successful, the offsets of processed
     #   messages can be committed to Kafka.
-    # @yieldparam batch [Kafka::FetchedBatch] a message batch fetched from Kafka.
+    # @yieldparam batch [KafkaLegacy::FetchedBatch] a message batch fetched from Kafka.
     # @return [nil]
     def each_batch(min_bytes: 1, max_bytes: 10485760, max_wait_time: 1, automatically_mark_as_processed: true)
       @fetcher.configure(
@@ -427,7 +427,7 @@ module KafkaLegacy
       @logger.error "Retrying to make final offsets commit (#{attempts} attempts left)"
       sleep(0.1)
       make_final_offsets_commit!(attempts - 1)
-    rescue Kafka::Error => e
+    rescue KafkaLegacy::Error => e
       @logger.error "Encountered error while shutting down; #{e.class}: #{e.message}"
     end
 

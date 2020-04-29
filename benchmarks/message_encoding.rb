@@ -4,20 +4,20 @@ require "kafka-legacy"
 
 ready "message serialization" do
   before do
-    message = Kafka::Protocol::Message.new(
+    message = KafkaLegacy::Protocol::Message.new(
       value: "hello",
       key: "world",
     )
 
     @io = StringIO.new
-    encoder = Kafka::Protocol::Encoder.new(@io)
+    encoder = KafkaLegacy::Protocol::Encoder.new(@io)
     message.encode(encoder)
 
-    @decoder = Kafka::Protocol::Decoder.new(@io)
+    @decoder = KafkaLegacy::Protocol::Decoder.new(@io)
   end
 
   go "decoding" do
     @io.rewind
-    Kafka::Protocol::Message.decode(@decoder)
+    KafkaLegacy::Protocol::Message.decode(@decoder)
   end
 end

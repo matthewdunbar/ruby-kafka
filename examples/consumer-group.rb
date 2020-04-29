@@ -27,7 +27,7 @@ trap("INT") { consumer.stop }
 begin
   consumer.each_message do |message|
   end
-rescue Kafka::ProcessingError => e
+rescue KafkaLegacy::ProcessingError => e
   warn "Got #{e.cause}"
   consumer.pause(e.topic, e.partition, timeout: 20)
 

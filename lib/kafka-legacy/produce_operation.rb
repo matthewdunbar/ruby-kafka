@@ -66,7 +66,7 @@ module KafkaLegacy
 
           messages_for_broker[broker] ||= MessageBuffer.new
           messages_for_broker[broker].concat(messages, topic: topic, partition: partition)
-        rescue Kafka::Error => e
+        rescue KafkaLegacy::Error => e
           @logger.error "Could not connect to leader for partition #{topic}/#{partition}: #{e.message}"
 
           @instrumenter.instrument("topic_error.producer", {
@@ -139,22 +139,22 @@ module KafkaLegacy
               delay: ack_time - message.create_time,
             })
           end
-        rescue Kafka::CorruptMessage
+        rescue KafkaLegacy::CorruptMessage
           @logger.error "Corrupt message when writing to #{topic}/#{partition} on #{broker}"
-        rescue Kafka::UnknownTopicOrPartition
+        rescue KafkaLegacy::UnknownTopicOrPartition
           @logger.error "Unknown topic or partition #{topic}/#{partition} on #{broker}"
           @cluster.mark_as_stale!
-        rescue Kafka::LeaderNotAvailable
+        rescue KafkaLegacy::LeaderNotAvailable
           @logger.error "Leader currently not available for #{topic}/#{partition}"
           @cluster.mark_as_stale!
-        rescue Kafka::NotLeaderForPartition
+        rescue KafkaLegacy::NotLeaderForPartition
           @logger.error "Broker #{broker} not currently leader for #{topic}/#{partition}"
           @cluster.mark_as_stale!
-        rescue Kafka::RequestTimedOut
+        rescue KafkaLegacy::RequestTimedOut
           @logger.error "Timed out while writing to #{topic}/#{partition} on #{broker}"
-        rescue Kafka::NotEnoughReplicas
+        rescue KafkaLegacy::NotEnoughReplicas
           @logger.error "Not enough in-sync replicas for #{topic}/#{partition}"
-        rescue Kafka::NotEnoughReplicasAfterAppend
+        rescue KafkaLegacy::NotEnoughReplicasAfterAppend
           @logger.error "Messages written, but to fewer in-sync replicas than required for #{topic}/#{partition}"
         else
           @logger.debug "Successfully appended #{messages.count} messages to #{topic}/#{partition} on #{broker}"

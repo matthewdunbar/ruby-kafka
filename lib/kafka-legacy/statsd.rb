@@ -15,13 +15,13 @@ module KafkaLegacy
   #     require "kafka-legacy/statsd"
   #
   #     # Default is "ruby_kafka".
-  #     Kafka::Statsd.namespace = "custom-namespace"
+  #     KafkaLegacy::Statsd.namespace = "custom-namespace"
   #
   #     # Default is "127.0.0.1".
-  #     Kafka::Statsd.host = "statsd.something.com"
+  #     KafkaLegacy::Statsd.host = "statsd.something.com"
   #
   #     # Default is 8125.
-  #     Kafka::Statsd.port = 1234
+  #     KafkaLegacy::Statsd.port = 1234
   #
   # Once the file has been required, no further configuration is needed – all operational
   # metrics are automatically emitted.
@@ -53,7 +53,7 @@ module KafkaLegacy
 
       %w[increment count timing gauge].each do |type|
         define_method(type) do |*args|
-          Kafka::Statsd.statsd.send(type, *args)
+          KafkaLegacy::Statsd.statsd.send(type, *args)
         end
       end
     end

@@ -39,7 +39,7 @@ threads = NUM_THREADS.times.map do
       loop do
         producer.produce(rand.to_s, key: rand.to_s, topic: KAFKA_TOPIC)
       end
-    rescue Kafka::BufferOverflow
+    rescue KafkaLegacy::BufferOverflow
       logger.error "Buffer overflow, backing off for 1s"
       sleep 1
       retry

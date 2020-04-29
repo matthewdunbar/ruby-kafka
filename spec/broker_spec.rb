@@ -2,7 +2,7 @@
 
 require "kafka-legacy/protocol/message"
 
-describe Kafka::Broker do
+describe KafkaLegacy::Broker do
   let(:logger) { LOGGER }
   let(:connection) { FakeConnection.new }
   let(:connection_builder) { double(:connection_builder) }
@@ -12,7 +12,7 @@ describe Kafka::Broker do
   end
 
   let(:broker) {
-    Kafka::Broker.new(
+    KafkaLegacy::Broker.new(
       connection_builder: connection_builder,
       host: "x.com",
       port: 9092,
@@ -43,7 +43,7 @@ describe Kafka::Broker do
       host = "test_host"
       port = 333
 
-      broker = Kafka::Broker.new(
+      broker = KafkaLegacy::Broker.new(
         connection_builder: connection_builder,
         host: host,
         port: port,
@@ -57,7 +57,7 @@ describe Kafka::Broker do
 
   describe "#metadata" do
     it "fetches cluster metadata" do
-      response = Kafka::Protocol::MetadataResponse.new(brokers: [], controller_id: nil, topics: [])
+      response = KafkaLegacy::Protocol::MetadataResponse.new(brokers: [], controller_id: nil, topics: [])
       connection.mock_response(response)
 
       metadata = broker.fetch_metadata(topics: [])
@@ -67,10 +67,10 @@ describe Kafka::Broker do
   end
 
   describe "#produce" do
-    let(:message) { Kafka::Protocol::Message.new(key: "yo", value: "lo") }
+    let(:message) { KafkaLegacy::Protocol::Message.new(key: "yo", value: "lo") }
 
     it "waits for a response if acknowledgements are required" do
-      response = Kafka::Protocol::ProduceResponse.new
+      response = KafkaLegacy::Protocol::ProduceResponse.new
       connection.mock_response(response)
 
       actual_response = broker.produce(
@@ -103,7 +103,7 @@ describe Kafka::Broker do
 
   describe "#fetch_messages" do
     it "fetches messages from the specified topic/partition" do
-      response = Kafka::Protocol::ProduceResponse.new
+      response = KafkaLegacy::Protocol::ProduceResponse.new
 
       connection.mock_response(response)
 

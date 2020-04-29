@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-describe Kafka::Partitioner, "#partition_for_key" do
-  let(:partitioner) { Kafka::Partitioner }
+describe KafkaLegacy::Partitioner, "#partition_for_key" do
+  let(:partitioner) { KafkaLegacy::Partitioner }
   let(:message) { double(:message, key: nil, partition_key: "yolo") }
 
   it "deterministically returns a partition number for a partition key and partition count" do

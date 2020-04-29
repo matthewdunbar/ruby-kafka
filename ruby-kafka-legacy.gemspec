@@ -7,7 +7,7 @@ require 'kafka-legacy/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "ruby-kafka-legacy"
-  spec.version       = Kafka::VERSION
+  spec.version       = KafkaLegacy::VERSION
   spec.authors       = ["Daniel Schierbeck"]
   spec.email         = ["daniel.schierbeck@gmail.com"]
 

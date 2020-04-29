@@ -8,7 +8,7 @@ describe "Reporting metrics to Datadog", functional: true do
   example "reporting connection metrics" do
     agent = FakeDatadogAgent.new
 
-    Kafka::Datadog.port = agent.port
+    KafkaLegacy::Datadog.port = agent.port
 
     agent.start
 

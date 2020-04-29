@@ -18,7 +18,7 @@ module KafkaLegacy
 
         if mechanism
           @mechanism = MECHANISMS.fetch(mechanism) do
-            raise Kafka::SaslScramError, "SCRAM mechanism #{mechanism} is not supported."
+            raise KafkaLegacy::SaslScramError, "SCRAM mechanism #{mechanism} is not supported."
           end
         end
       end

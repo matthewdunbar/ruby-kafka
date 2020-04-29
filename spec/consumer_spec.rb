@@ -2,11 +2,11 @@
 
 require "timecop"
 
-describe Kafka::Consumer do
+describe KafkaLegacy::Consumer do
   let(:cluster) { double(:cluster) }
   let(:log) { StringIO.new }
   let(:logger) { Logger.new(log) }
-  let(:instrumenter) { Kafka::Instrumenter.new(client_id: "test", group_id: "test") }
+  let(:instrumenter) { KafkaLegacy::Instrumenter.new(client_id: "test", group_id: "test") }
   let(:group) { double(:group) }
   let(:offset_manager) { double(:offset_manager) }
   let(:heartbeat) { double(:heartbeat) }
@@ -15,7 +15,7 @@ describe Kafka::Consumer do
   let(:assigned_partitions) { { "greetings" => [0] } }
 
   let(:consumer) {
-    Kafka::Consumer.new(
+    KafkaLegacy::Consumer.new(
       cluster: cluster,
       logger: logger,
       instrumenter: instrumenter,
@@ -42,7 +42,7 @@ describe Kafka::Consumer do
 
   let(:fetched_batches) {
     [
-      Kafka::FetchedBatch.new(
+      KafkaLegacy::FetchedBatch.new(
         topic: "greetings",
         partition: 0,
         highwater_mark_offset: 42,
@@ -67,7 +67,7 @@ describe Kafka::Consumer do
 
     let(:old_fetched_batches) {
       [
-        Kafka::FetchedBatch.new(
+        KafkaLegacy::FetchedBatch.new(
           topic: "greetings",
           partition: 1,
           highwater_mark_offset: 42,
@@ -132,7 +132,7 @@ describe Kafka::Consumer do
         consumer.each_message do |message|
           raise "yolo"
         end
-      }.to raise_exception(Kafka::ProcessingError) {|exception|
+      }.to raise_exception(KafkaLegacy::ProcessingError) {|exception|
         expect(exception.topic).to eq "greetings"
         expect(exception.partition).to eq 0
         expect(exception.offset).to eq 13
@@ -163,7 +163,7 @@ describe Kafka::Consumer do
         if done
           [:batches, fetched_batches]
         else
-          [:exception, Kafka::OffsetOutOfRange.new]
+          [:exception, KafkaLegacy::OffsetOutOfRange.new]
         end
       }
 
@@ -212,7 +212,7 @@ describe Kafka::Consumer do
 
     it 'retries final offsets commit at the end' do
       allow(offset_manager).to receive(:commit_offsets)
-        .exactly(4).times { raise(Kafka::ConnectionError) }
+        .exactly(4).times { raise(KafkaLegacy::ConnectionError) }
 
       consumer.each_message do |message|
         consumer.stop
@@ -268,7 +268,7 @@ describe Kafka::Consumer do
         consumer.each_batch do |message|
           raise "yolo"
         end
-      }.to raise_exception(Kafka::ProcessingError) {|exception|
+      }.to raise_exception(KafkaLegacy::ProcessingError) {|exception|
         expect(exception.topic).to eq "greetings"
         expect(exception.partition).to eq 0
         expect(exception.offset).to eq 13..13

@@ -36,8 +36,8 @@ module KafkaLegacy
 
     # Fetches cluster metadata from the broker.
     #
-    # @param (see Kafka::Protocol::MetadataRequest#initialize)
-    # @return [Kafka::Protocol::MetadataResponse]
+    # @param (see KafkaLegacy::Protocol::MetadataRequest#initialize)
+    # @return [KafkaLegacy::Protocol::MetadataResponse]
     def fetch_metadata(**options)
       request = Protocol::MetadataRequest.new(**options)
 
@@ -46,8 +46,8 @@ module KafkaLegacy
 
     # Fetches messages from a specified topic and partition.
     #
-    # @param (see Kafka::Protocol::FetchRequest#initialize)
-    # @return [Kafka::Protocol::FetchResponse]
+    # @param (see KafkaLegacy::Protocol::FetchRequest#initialize)
+    # @return [KafkaLegacy::Protocol::FetchResponse]
     def fetch_messages(**options)
       request = Protocol::FetchRequest.new(**options)
 
@@ -56,8 +56,8 @@ module KafkaLegacy
 
     # Lists the offset of the specified topics and partitions.
     #
-    # @param (see Kafka::Protocol::ListOffsetRequest#initialize)
-    # @return [Kafka::Protocol::ListOffsetResponse]
+    # @param (see KafkaLegacy::Protocol::ListOffsetRequest#initialize)
+    # @return [KafkaLegacy::Protocol::ListOffsetResponse]
     def list_offsets(**options)
       request = Protocol::ListOffsetRequest.new(**options)
 
@@ -66,8 +66,8 @@ module KafkaLegacy
 
     # Produces a set of messages to the broker.
     #
-    # @param (see Kafka::Protocol::ProduceRequest#initialize)
-    # @return [Kafka::Protocol::ProduceResponse]
+    # @param (see KafkaLegacy::Protocol::ProduceRequest#initialize)
+    # @return [KafkaLegacy::Protocol::ProduceResponse]
     def produce(**options)
       request = Protocol::ProduceRequest.new(**options)
 

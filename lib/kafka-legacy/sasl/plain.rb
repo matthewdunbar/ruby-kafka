@@ -27,9 +27,9 @@ module KafkaLegacy
 
         begin
           msg = decoder.bytes
-          raise Kafka::Error, "SASL PLAIN authentication failed: unknown error" unless msg
+          raise KafkaLegacy::Error, "SASL PLAIN authentication failed: unknown error" unless msg
         rescue Errno::ETIMEDOUT, EOFError => e
-          raise Kafka::Error, "SASL PLAIN authentication failed: #{e.message}"
+          raise KafkaLegacy::Error, "SASL PLAIN authentication failed: #{e.message}"
         end
 
         @logger.debug "SASL PLAIN authentication successful."

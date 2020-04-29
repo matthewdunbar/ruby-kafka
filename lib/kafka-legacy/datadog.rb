@@ -16,13 +16,13 @@ module KafkaLegacy
   #     require "kafka-legacy/datadog"
   #
   #     # Default is "ruby_kafka".
-  #     Kafka::Datadog.namespace = "custom-namespace"
+  #     KafkaLegacy::Datadog.namespace = "custom-namespace"
   #
   #     # Default is "127.0.0.1".
-  #     Kafka::Datadog.host = "statsd.something.com"
+  #     KafkaLegacy::Datadog.host = "statsd.something.com"
   #
   #     # Default is 8125.
-  #     Kafka::Datadog.port = 1234
+  #     KafkaLegacy::Datadog.port = 1234
   #
   # Once the file has been required, no further configuration is needed – all operational
   # metrics are automatically emitted.
@@ -103,7 +103,7 @@ module KafkaLegacy
       def emit(type, *args, tags: {})
         tags = tags.map {|k, v| "#{k}:#{v}" }.to_a
 
-        Kafka::Datadog.statsd.send(type, *args, tags: tags)
+        KafkaLegacy::Datadog.statsd.send(type, *args, tags: tags)
       end
     end
 

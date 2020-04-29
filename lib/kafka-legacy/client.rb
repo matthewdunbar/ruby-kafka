@@ -169,7 +169,7 @@ module KafkaLegacy
         unless buffer.empty?
           raise DeliveryFailed.new(nil, [message])
         end
-      rescue Kafka::Error => e
+      rescue KafkaLegacy::Error => e
         @cluster.mark_as_stale!
 
         if attempt >= (retries + 1)
@@ -214,7 +214,7 @@ module KafkaLegacy
     #   be in a message set before it should be compressed. Note that message sets
     #   are per-partition rather than per-topic or per-producer.
     #
-    # @return [Kafka::Producer] the Kafka producer.
+    # @return [KafkaLegacy::Producer] the Kafka producer.
     def producer(compression_codec: nil, compression_threshold: 1, ack_timeout: 5, required_acks: :all, max_retries: 2, retry_backoff: 1, max_buffer_size: 1000, max_buffer_bytesize: 10_000_000)
       compressor = Compressor.new(
         codec_name: compression_codec,
@@ -400,7 +400,7 @@ module KafkaLegacy
     #   response message set. Default is 1 MB. You need to set this higher if you
     #   expect messages to be larger than this.
     #
-    # @return [Array<Kafka::FetchedMessage>] the messages returned from the broker.
+    # @return [Array<KafkaLegacy::FetchedMessage>] the messages returned from the broker.
     def fetch_messages(topic:, partition:, offset: :latest, max_wait_time: 5, min_bytes: 1, max_bytes: 1048576, retries: 1)
       operation = FetchOperation.new(
         cluster: @cluster,
@@ -416,7 +416,7 @@ module KafkaLegacy
 
       begin
         operation.execute.flat_map {|batch| batch.messages }
-      rescue Kafka::Error => e
+      rescue KafkaLegacy::Error => e
         @cluster.mark_as_stale!
 
         if attempt >= (retries + 1)
@@ -493,7 +493,7 @@ module KafkaLegacy
     # @param config [Hash] topic configuration entries. See
     #   [the Kafka documentation](https://kafka.apache.org/documentation/#topicconfigs)
     #   for more information.
-    # @raise [Kafka::TopicAlreadyExists] if the topic already exists.
+    # @raise [KafkaLegacy::TopicAlreadyExists] if the topic already exists.
     # @return [nil]
     def create_topic(name, num_partitions: 1, replication_factor: 1, timeout: 30, config: {})
       @cluster.create_topic(
@@ -555,7 +555,7 @@ module KafkaLegacy
     # Describe a consumer group
     #
     # @param group_id [String] the id of the consumer group
-    # @return [Kafka::Protocol::DescribeGroupsResponse::Group]
+    # @return [KafkaLegacy::Protocol::DescribeGroupsResponse::Group]
     def describe_group(group_id)
       @cluster.describe_group(group_id)
     end
@@ -580,7 +580,7 @@ module KafkaLegacy
       begin
         attempts += 1
         @cluster.list_topics
-      rescue Kafka::ConnectionError
+      rescue KafkaLegacy::ConnectionError
         @cluster.mark_as_stale!
         retry unless attempts > 1
         raise
